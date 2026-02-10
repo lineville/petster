@@ -2,12 +2,15 @@ import { useState } from "react"
 import { Slider } from "@/components/ui/slider"
 import { Button } from "@/components/ui/button"
 import { SwipeCards } from "@/components/SwipeCards"
+import { ResultsPage } from "@/components/ResultsPage"
+import type { SwipedDog } from "@/types"
 
 function App() {
-  const [step, setStep] = useState<"preferences" | "swipe">("preferences")
+  const [step, setStep] = useState<"preferences" | "swipe" | "results">("preferences")
   const [energy, setEnergy] = useState([20, 80])
   const [weight, setWeight] = useState([15, 100])
   const [age, setAge] = useState([0, 3])
+  const [swipeResults, setSwipeResults] = useState<{ liked: SwipedDog[]; disliked: SwipedDog[] }>({ liked: [], disliked: [] })
 
     const ageLabels = ["Puppy (0–1 yr)", "Young (1–3 yrs)", "Adult (3–7 yrs)", "Senior (7–10 yrs)", "Elderly (10+ yrs)"]
 
@@ -25,8 +28,21 @@ function App() {
       </header>
 
       <main className="mx-auto max-w-4xl px-6 py-6">
-        {step === "swipe" ? (
-          <SwipeCards onBack={() => setStep("preferences")} />
+        {step === "results" ? (
+          <ResultsPage
+            preferences={{ energy, weight, age }}
+            liked={swipeResults.liked}
+            disliked={swipeResults.disliked}
+            onStartOver={() => setStep("preferences")}
+          />
+        ) : step === "swipe" ? (
+          <SwipeCards
+            onBack={() => setStep("preferences")}
+            onComplete={(liked, disliked) => {
+              setSwipeResults({ liked, disliked })
+              setStep("results")
+            }}
+          />
         ) : (
           <>
         <section className="mb-12 text-center">

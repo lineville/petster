@@ -1,7 +1,8 @@
 import { useState, useRef, type TouchEvent, type MouseEvent } from "react"
-import { Heart, X } from "lucide-react"
+import { Heart, X, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import type { SwipedDog } from "@/types"
 
 interface Dog {
   id: number
@@ -79,12 +80,13 @@ const DOGS: Dog[] = [
 
 const SWIPE_THRESHOLD = 100
 
-export function SwipeCards({ onBack }: { onBack: () => void }) {
+export function SwipeCards({ onBack, onComplete }: { onBack: () => void; onComplete: (liked: SwipedDog[], disliked: SwipedDog[]) => void }) {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [offsetX, setOffsetX] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
   const [exitDirection, setExitDirection] = useState<"left" | "right" | null>(null)
   const [liked, setLiked] = useState<Dog[]>([])
+  const [disliked, setDisliked] = useState<Dog[]>([])
   const startX = useRef(0)
 
   const done = currentIndex >= DOGS.length
@@ -114,6 +116,8 @@ export function SwipeCards({ onBack }: { onBack: () => void }) {
     if (done) return
     if (direction === "right") {
       setLiked((prev) => [...prev, DOGS[currentIndex]])
+    } else {
+      setDisliked((prev) => [...prev, DOGS[currentIndex]])
     }
     setExitDirection(direction)
     setTimeout(() => {
@@ -139,11 +143,15 @@ export function SwipeCards({ onBack }: { onBack: () => void }) {
   const rotation = offsetX * 0.1
   const opacity = Math.max(0, 1 - Math.abs(offsetX) / 400)
 
+  function toSwipedDog(d: Dog): SwipedDog {
+    return { name: d.name, breed: d.breed, age: d.age, weight: d.weight, energy: d.energy, bio: d.bio }
+  }
+
   if (done) {
     return (
       <div className="flex flex-col items-center gap-6 py-12 text-center">
         <h2 className="text-3xl font-bold text-foreground">
-          {liked.length > 0 ? "Great choices! 🎉" : "No matches yet"}
+          {liked.length > 0 ? "Great choices! 🎉" : "All done!"}
         </h2>
         {liked.length > 0 && (
           <div className="space-y-2">
@@ -157,9 +165,18 @@ export function SwipeCards({ onBack }: { onBack: () => void }) {
             </ul>
           </div>
         )}
-        <Button variant="outline" onClick={onBack}>
-          ← Start over
-        </Button>
+        <div className="flex gap-3">
+          <Button variant="outline" onClick={onBack}>
+            ← Start over
+          </Button>
+          <Button
+            className="gap-2"
+            onClick={() => onComplete(liked.map(toSwipedDog), disliked.map(toSwipedDog))}
+          >
+            <Sparkles className="h-4 w-4" />
+            See my AI profile
+          </Button>
+        </div>
       </div>
     )
   }
