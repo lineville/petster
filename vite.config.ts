@@ -1,9 +1,10 @@
+import "dotenv/config"
 import path from "path"
 import { defineConfig } from 'vite'
 import type { Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
-import { parseBody, generateProfile, getMockProfile } from './server/api.ts'
+import { parseBody, generateProfile } from './server/api.ts'
 
 function apiPlugin(): Plugin {
   return {
@@ -19,14 +20,11 @@ function apiPlugin(): Plugin {
         try {
           const body = JSON.parse(await parseBody(req))
           const apiKey = process.env.OPENAI_API_KEY
-
-          let result
-          if (apiKey) {
-            result = await generateProfile(body, apiKey)
-          } else {
-            // Return mock data when no API key is configured
-            result = getMockProfile()
+          if (!apiKey) {
+            throw new Error('OPENAI_API_KEY environment variable is not set')
           }
+
+          const result = await generateProfile(body, apiKey)
 
           res.setHeader('Content-Type', 'application/json')
           res.end(JSON.stringify(result))

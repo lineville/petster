@@ -83,14 +83,17 @@ Return ONLY valid JSON with this exact structure (no markdown, no code fences):
   ]
 }`
 
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+  const endpoint = "https://petster.openai.azure.com/openai/deployments/gpt-4o-mini/chat/completions?api-version=2024-08-01-preview"
+
+  console.log("[petster] Calling Azure OpenAI:", endpoint)
+
+  const response = await fetch(endpoint, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
+      "api-key": apiKey,
     },
     body: JSON.stringify({
-      model: "gpt-4o-mini",
       response_format: { type: "json_object" },
       messages: [
         {
@@ -104,169 +107,21 @@ Return ONLY valid JSON with this exact structure (no markdown, no code fences):
     }),
   })
 
-  if (!response.ok) {
-    const error = await response.text()
-    throw new Error(`OpenAI API error: ${response.status} ${error}`)
+  const rawText = await response.text()
+  console.log("[petster] Response status:", response.status)
+  try {
+    console.log("[petster] Raw response:", JSON.stringify(JSON.parse(rawText), null, 2))
+  } catch {
+    console.log("[petster] Raw response (not JSON):", rawText)
   }
 
-  const data = (await response.json()) as {
+  if (!response.ok) {
+    throw new Error(`Azure OpenAI API error: ${response.status} ${rawText}`)
+  }
+
+  const data = JSON.parse(rawText) as {
     choices: Array<{ message: { content: string } }>
   }
   const content = data.choices[0].message.content
   return JSON.parse(content) as Record<string, unknown>
-}
-
-export function getMockProfile() {
-  return {
-    ownerTitle: "The Balanced Companion Seeker",
-    ownerProfile:
-      "You're looking for a well-rounded furry friend who can keep up with your moderately active lifestyle but also knows when it's time to chill on the couch. You appreciate a dog with personality and aren't afraid of a little extra fluff.",
-    recommendedBreeds: [
-      {
-        breed: "Golden Retriever",
-        reason:
-          "The ultimate family dog that matches your energy range perfectly. Friendly, loyal, and always ready for adventure or relaxation.",
-        compatibility: 95,
-        traits: ["Friendly", "Loyal", "Adaptable"],
-      },
-      {
-        breed: "Labrador Retriever",
-        reason:
-          "Versatile and eager to please, Labs fit right into your preferred weight and energy range.",
-        compatibility: 92,
-        traits: ["Outgoing", "Trainable", "Gentle"],
-      },
-      {
-        breed: "Australian Shepherd",
-        reason:
-          "Smart and athletic, perfect for someone who wants an engaged, responsive companion.",
-        compatibility: 88,
-        traits: ["Intelligent", "Active", "Devoted"],
-      },
-      {
-        breed: "Bernese Mountain Dog",
-        reason:
-          "A gentle giant who loves outdoor activities but is equally happy lounging at home.",
-        compatibility: 82,
-        traits: ["Calm", "Affectionate", "Strong"],
-      },
-      {
-        breed: "Border Collie",
-        reason:
-          "Incredibly smart and energetic, ideal if you want a dog that challenges you.",
-        compatibility: 78,
-        traits: ["Brilliant", "Athletic", "Focused"],
-      },
-    ],
-    dogProfiles: [
-      {
-        name: "Charlie",
-        breed: "Golden Retriever",
-        age: "2 yrs",
-        weight: "68 lbs",
-        energy: "High",
-        personality:
-          "Charlie is the life of every dog park. He greets everyone with a wagging tail and has never met a tennis ball he didn't love.",
-      },
-      {
-        name: "Daisy",
-        breed: "Golden Retriever",
-        age: "1 yr",
-        weight: "55 lbs",
-        energy: "High",
-        personality:
-          "A gentle soul with boundless enthusiasm. Daisy specializes in making bad days better with her goofy smile.",
-      },
-      {
-        name: "Cooper",
-        breed: "Labrador Retriever",
-        age: "3 yrs",
-        weight: "72 lbs",
-        energy: "High",
-        personality:
-          "Cooper is an expert swimmer and treat negotiator. He'll do anything for a belly rub and a game of fetch.",
-      },
-      {
-        name: "Rosie",
-        breed: "Labrador Retriever",
-        age: "1 yr",
-        weight: "58 lbs",
-        energy: "Medium",
-        personality:
-          "Sweet and soulful, Rosie loves long walks followed by longer naps. She's mastered the puppy eyes.",
-      },
-      {
-        name: "Maverick",
-        breed: "Australian Shepherd",
-        age: "2 yrs",
-        weight: "52 lbs",
-        energy: "Very High",
-        personality:
-          "Maverick is smarter than most humans and twice as fast. He needs a job or he'll reorganize your sock drawer.",
-      },
-      {
-        name: "Willow",
-        breed: "Australian Shepherd",
-        age: "4 yrs",
-        weight: "45 lbs",
-        energy: "High",
-        personality:
-          "Graceful and devoted, Willow is your shadow. She'll herd your kids, your cats, and occasionally your guests.",
-      },
-      {
-        name: "Atlas",
-        breed: "Bernese Mountain Dog",
-        age: "3 yrs",
-        weight: "95 lbs",
-        energy: "Medium",
-        personality:
-          "A majestic gentle giant who thinks he's a lap dog. Atlas loves snow, hugs, and stealing the warmest spot on the couch.",
-      },
-      {
-        name: "Stella",
-        breed: "Bernese Mountain Dog",
-        age: "2 yrs",
-        weight: "88 lbs",
-        energy: "Medium",
-        personality:
-          "Stella has the patience of a saint and the fluffiness of a cloud. She'll lean against your legs and never want to leave your side.",
-      },
-      {
-        name: "Scout",
-        breed: "Border Collie",
-        age: "1 yr",
-        weight: "38 lbs",
-        energy: "Very High",
-        personality:
-          "Scout learned three tricks on his first day home. He needs mental stimulation like humans need coffee — constantly.",
-      },
-      {
-        name: "Indie",
-        breed: "Border Collie",
-        age: "3 yrs",
-        weight: "42 lbs",
-        energy: "High",
-        personality:
-          "Independent but loyal, Indie is the perfect adventure companion. She'll hike all day and curl up by the fire all night.",
-      },
-      {
-        name: "Oakley",
-        breed: "Golden Retriever",
-        age: "5 yrs",
-        weight: "70 lbs",
-        energy: "Medium",
-        personality:
-          "A distinguished gentleman who has mellowed beautifully with age. Oakley is calm, wise, and gives the best hugs.",
-      },
-      {
-        name: "Penny",
-        breed: "Labrador Retriever",
-        age: "2 yrs",
-        weight: "62 lbs",
-        energy: "High",
-        personality:
-          "Penny is pure sunshine in dog form. She'll make friends with everyone and has a particular talent for finding mud puddles.",
-      },
-    ],
-  }
 }
