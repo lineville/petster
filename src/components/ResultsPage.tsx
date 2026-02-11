@@ -203,58 +203,64 @@ export function ResultsPage({
         </div>
       </section>
 
-      {/* Quick Stats */}
+      {/* Preferences At-a-Glance */}
       <section>
-        <div className="grid grid-cols-3 gap-4 mx-auto max-w-lg">
-          <div className="text-center p-4 rounded-lg bg-card border border-border shadow-sm">
-            <p className="text-2xl font-bold text-foreground">{liked.length}</p>
-            <p className="text-xs text-muted-foreground">Dogs Liked</p>
-          </div>
-          <div className="text-center p-4 rounded-lg bg-card border border-border shadow-sm">
-            <p className="text-2xl font-bold text-foreground">
-              {disliked.length}
-            </p>
-            <p className="text-xs text-muted-foreground">Dogs Passed</p>
-          </div>
-          <div className="text-center p-4 rounded-lg bg-card border border-border shadow-sm">
-            <p className="text-2xl font-bold text-foreground">
-              {profile.recommendedBreeds.length}
-            </p>
-            <p className="text-xs text-muted-foreground">Breeds Matched</p>
-          </div>
-        </div>
-      </section>
-
-      {/* Your Preferences Recap */}
-      <section>
-        <h3 className="text-2xl font-bold text-foreground mb-6 text-center">
-          📋 Your Preferences
-        </h3>
-        <div className="grid gap-4 sm:grid-cols-3 mx-auto max-w-2xl">
-          <div className="rounded-xl border border-border bg-card p-4 shadow-sm text-center">
-            <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1">
-              Energy
-            </p>
-            <p className="text-lg font-semibold text-foreground">
-              {preferences.energy[0]}% – {preferences.energy[1]}%
-            </p>
-          </div>
-          <div className="rounded-xl border border-border bg-card p-4 shadow-sm text-center">
-            <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1">
-              Weight
-            </p>
-            <p className="text-lg font-semibold text-foreground">
-              {preferences.weight[0]} – {preferences.weight[1]} lbs
-            </p>
-          </div>
-          <div className="rounded-xl border border-border bg-card p-4 shadow-sm text-center">
-            <p className="text-xs uppercase tracking-wide text-muted-foreground mb-1">
-              Age
-            </p>
-            <p className="text-lg font-semibold text-foreground">
-              {AGE_LABELS[preferences.age[0]]} –{" "}
-              {AGE_LABELS[preferences.age[1]]}
-            </p>
+        <div className="mx-auto max-w-md rounded-xl border border-border bg-card p-5 shadow-sm space-y-4">
+          <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground text-center">
+            What you're looking for
+          </p>
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <span className="text-base shrink-0">⚡</span>
+              <div className="flex-1">
+                <div className="h-2 rounded-full bg-muted overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-amber-500 transition-all duration-700"
+                    style={{
+                      marginLeft: `${preferences.energy[0]}%`,
+                      width: `${preferences.energy[1] - preferences.energy[0]}%`,
+                    }}
+                  />
+                </div>
+              </div>
+              <span className="text-xs text-muted-foreground tabular-nums w-20 text-right shrink-0">
+                {preferences.energy[0]}–{preferences.energy[1]}%
+              </span>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="text-base shrink-0">⚖️</span>
+              <div className="flex-1">
+                <div className="h-2 rounded-full bg-muted overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-blue-500 transition-all duration-700"
+                    style={{
+                      marginLeft: `${(preferences.weight[0] / 200) * 100}%`,
+                      width: `${((preferences.weight[1] - preferences.weight[0]) / 200) * 100}%`,
+                    }}
+                  />
+                </div>
+              </div>
+              <span className="text-xs text-muted-foreground tabular-nums w-20 text-right shrink-0">
+                {preferences.weight[0]}–{preferences.weight[1]} lbs
+              </span>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="text-base shrink-0">🎂</span>
+              <div className="flex-1">
+                <div className="h-2 rounded-full bg-muted overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-violet-500 transition-all duration-700"
+                    style={{
+                      marginLeft: `${(preferences.age[0] / 4) * 100}%`,
+                      width: `${((preferences.age[1] - preferences.age[0]) / 4) * 100}%`,
+                    }}
+                  />
+                </div>
+              </div>
+              <span className="text-xs text-muted-foreground tabular-nums w-20 text-right shrink-0">
+                {AGE_SHORT[preferences.age[0]]}–{AGE_SHORT[preferences.age[1]]}
+              </span>
+            </div>
           </div>
         </div>
       </section>
@@ -349,13 +355,7 @@ export function ResultsPage({
   )
 }
 
-const AGE_LABELS = [
-  "Puppy (0–1 yr)",
-  "Young (1–3 yrs)",
-  "Adult (3–7 yrs)",
-  "Senior (7–10 yrs)",
-  "Elderly (10+ yrs)",
-]
+const AGE_SHORT = ["Puppy", "Young", "Adult", "Senior", "Elderly"]
 
 function DogCard({
   dog,
