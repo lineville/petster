@@ -6,6 +6,11 @@ import type {
   ProfileResult,
   DogProfile,
 } from "@/types"
+import {
+  getRecommendations,
+  getOrCreateUser,
+  type DogOut,
+} from "@/lib/api"
 
 const BREED_API_MAP: Record<string, string> = {
   "golden retriever": "retriever/golden",
@@ -118,6 +123,38 @@ export function ResultsPage({
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [dogImages, setDogImages] = useState<Record<string, string>>({})
+  const [backendRecs, setBackendRecs] = useState<DogOut[]>([])
+  const [backendRecsMessage, setBackendRecsMessage] = useState("")
+  const [backendRecImages, setBackendRecImages] = useState<Record<number, string>>({})
+
+  // Fetch backend recommendations in parallel with the AI profile
+  useEffect(() => {
+    let cancelled = false
+    async function loadRecs() {
+      try {
+        const user = await getOrCreateUser()
+        const recs = await getRecommendations(user.id, 6)
+        if (cancelled) return
+        setBackendRecs(recs.dogs)
+        setBackendRecsMessage(recs.message)
+
+        // Fetch images
+        const imgPromises = recs.dogs.map(async (dog) => {
+          const url = await fetchDogImage(dog.breed)
+          return { id: dog.id, url }
+        })
+        const imgs = await Promise.all(imgPromises)
+        if (cancelled) return
+        const map: Record<number, string> = {}
+        for (const { id, url } of imgs) map[id] = url
+        setBackendRecImages(map)
+      } catch {
+        // Non-critical – backend recs are supplementary
+      }
+    }
+    loadRecs()
+    return () => { cancelled = true }
+  }, [])
 
   useEffect(() => {
     let cancelled = false
@@ -347,6 +384,80 @@ export function ResultsPage({
 
       {/* CTA */}
       <section className="text-center pt-4">
+
+      {/* Backend-powered recommendations from your swipe history */}
+      {backendRecs.length > 0 && (
+        <section>
+          <h3 className="text-2xl font-bold text-foreground mb-2 text-center">
+            🐾 Real Dogs Available Now
+          </h3>
+          <p className="text-center text-muted-foreground mb-6">
+            {backendRecsMessage}
+          </p>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {backendRecs.map((dog, i) => {
+              const imgUrl = backendRecImages[dog.id] ?? ""
+              return (
+                <div
+                  key={dog.id}
+                  className="rounded-xl border border-border bg-card overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 animate-slide-up"
+                  style={{ animationDelay: `${i * 80}ms` }}
+                >
+                  <div className="aspect-square w-full overflow-hidden bg-muted relative">
+                    {imgUrl ? (
+                      <img
+                        src={imgUrl}
+                        alt={dog.name}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <div className="h-full w-full flex items-center justify-center">
+                        <span className="text-5xl animate-pulse">🐕</span>
+                      </div>
+                    )}
+                    {dog.is_rescue && (
+                      <div className="absolute top-3 left-3">
+                        <span className="px-2 py-1 rounded-full text-xs font-medium bg-amber-100/90 text-amber-700 backdrop-blur-sm">
+                          🏠 Rescue
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="p-4 space-y-2">
+                    <div className="flex items-baseline justify-between">
+                      <h4 className="text-lg font-bold text-foreground">{dog.name}</h4>
+                      <span className="text-xs font-medium text-muted-foreground bg-secondary px-2 py-0.5 rounded-full">
+                        {dog.breed}
+                      </span>
+                    </div>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      {dog.description}
+                    </p>
+                    <div className="flex gap-3 text-xs text-muted-foreground pt-1">
+                      <span>🎂 {dog.age_years} yrs</span>
+                      <span>⚖️ {dog.weight_lbs} lbs</span>
+                      <span>{dog.sex === "male" ? "♂️" : "♀️"}</span>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {dog.good_with_kids && (
+                        <span className="px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-xs">
+                          👶 Kids
+                        </span>
+                      )}
+                      {dog.good_with_cats && (
+                        <span className="px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 text-xs">
+                          🐱 Cats
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </section>
+      )}
+
         <Button variant="outline" size="lg" onClick={onStartOver}>
           ← Start Over
         </Button>
