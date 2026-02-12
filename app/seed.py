@@ -141,7 +141,7 @@ MOCK_DOGS = [
         image_url="https://placedog.net/500/500?id=9",
     ),
     Dog(
-        name="Molly",
+        name="Cooper",
         breed="Yorkshire Terrier",
         size=SizeEnum.small,
         age_years=7,
