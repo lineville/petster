@@ -83,7 +83,7 @@ Return ONLY valid JSON with this exact structure (no markdown, no code fences):
   ]
 }`
 
-  const endpoint = "https://tingrrr.openai.azure.com/openai/deployments/gpt-4o-mini/chat/completions?api-version=2024-08-01-preview"
+  const endpoint = "https://petster.openai.azure.com/openai/deployments/gpt-4o-mini/chat/completions?api-version=2024-08-01-preview"
 
   console.log("[tingrrr] Calling Azure OpenAI:", endpoint)
 
@@ -163,7 +163,7 @@ Return ONLY valid JSON:
   const gptEndpoint =
     "https://petster.openai.azure.com/openai/deployments/gpt-4o-mini/chat/completions?api-version=2024-08-01-preview"
 
-  console.log("[petster] Generating DALL-E prompts via GPT...")
+  console.log("[tingrrr] Generating DALL-E prompts via GPT...")
   const gptRes = await fetch(gptEndpoint, {
     method: "POST",
     headers: { "Content-Type": "application/json", "api-key": apiKey },
@@ -189,7 +189,7 @@ Return ONLY valid JSON:
     recommendations: Array<{ prompt: string; description: string }>
   }
 
-  console.log("[petster] Generated prompts:", recs.recommendations.map((r) => r.prompt))
+  console.log("[tingrrr] Generated prompts:", recs.recommendations.map((r) => r.prompt))
 
   // Step 2: Call DALL-E 3 for each prompt
   const dalleEndpoint =
@@ -199,7 +199,7 @@ Return ONLY valid JSON:
 
   for (const rec of recs.recommendations) {
     try {
-      console.log("[petster] Generating DALL-E image:", rec.prompt)
+      console.log("[tingrrr] Generating DALL-E image:", rec.prompt)
       const dalleRes = await fetch(dalleEndpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json", "api-key": apiKey },
@@ -213,7 +213,7 @@ Return ONLY valid JSON:
 
       if (!dalleRes.ok) {
         const errText = await dalleRes.text()
-        console.error("[petster] DALL-E error:", errText)
+        console.error("[tingrrr] DALL-E error:", errText)
         // Push placeholder on failure
         imageResults.push({ url: "", description: rec.description })
         continue
@@ -227,7 +227,7 @@ Return ONLY valid JSON:
         description: rec.description,
       })
     } catch (err) {
-      console.error("[petster] DALL-E generation failed:", err)
+      console.error("[tingrrr] DALL-E generation failed:", err)
       imageResults.push({ url: "", description: rec.description })
     }
   }
