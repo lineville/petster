@@ -7,6 +7,7 @@ import {
   getSwipeCards,
   recordSwipe,
   getOrCreateUser,
+  resetSwipes,
   type DogOut,
   type SwipeCard as SwipeCardType,
 } from "@/lib/api"
@@ -184,11 +185,39 @@ export function SwipeCards({ onBack, onComplete }: { onBack: () => void; onCompl
   }
 
   if (cards.length === 0) {
+    const handleReset = async () => {
+      if (!userId) return
+      try {
+        setLoading(true)
+        await resetSwipes(userId)
+        setCurrentIndex(0)
+        setLiked([])
+        setDisliked([])
+        const freshCards = await getSwipeCards(userId, 20)
+        setCards(freshCards)
+        // Pre-fetch images for new cards
+        const imgs: Record<number, string> = {}
+        await Promise.all(
+          freshCards.map(async (c) => {
+            const url = c.dog.image_url || (await fetchBreedImage(c.dog.breed))
+            if (url) imgs[c.dog.id] = url
+          })
+        )
+        setImages(imgs)
+        setLoading(false)
+      } catch (err) {
+        console.error("Failed to reset swipes:", err)
+        setLoading(false)
+      }
+    }
     return (
       <div className="flex flex-col items-center gap-6 py-12 text-center">
         <h2 className="text-3xl font-bold text-foreground">No dogs available 🐕</h2>
-        <p className="text-muted-foreground">Check back later or reset your swipes.</p>
-        <Button variant="outline" onClick={onBack}>← Back to preferences</Button>
+        <p className="text-muted-foreground">You've seen all the dogs! Reset to swipe again.</p>
+        <div className="flex gap-3">
+          <Button variant="outline" onClick={onBack}>← Back to preferences</Button>
+          <Button onClick={handleReset}>🔄 Reset Swipes</Button>
+        </div>
       </div>
     )
   }

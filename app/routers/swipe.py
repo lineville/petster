@@ -9,7 +9,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.models import Dog, User, Swipe, SwipeDirection
+from app.models import Dog, User, Swipe, UserPreference, SwipeDirection
 from app.schemas import (
     SwipeRequest,
     SwipeOut,
@@ -128,3 +128,17 @@ def get_user_preferences(user_id: int, db: Session = Depends(get_db)):
             detail="No preferences yet – swipe right on some dogs first!",
         )
     return user.preferences
+
+
+# ── Reset swipes ─────────────────────────────────────────────────────────────
+
+@router.delete("/{user_id}/reset", status_code=204)
+def reset_swipes(user_id: int, db: Session = Depends(get_db)):
+    """Delete all swipe history and preferences for a user so they can start over."""
+    user = db.query(User).get(user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    db.query(Swipe).filter(Swipe.user_id == user_id).delete()
+    db.query(UserPreference).filter(UserPreference.user_id == user_id).delete()
+    db.commit()

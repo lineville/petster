@@ -146,6 +146,17 @@ export async function getRecommendations(
   return handleResponse<RecommendationOut>(res)
 }
 
+/** Reset all swipes for a user so they can start fresh */
+export async function resetSwipes(userId: number): Promise<void> {
+  const res = await fetch(`${BASE}/swipe/${userId}/reset`, {
+    method: "DELETE",
+  })
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: res.statusText }))
+    throw new Error((err as { detail?: string }).detail ?? res.statusText)
+  }
+}
+
 /** Upload a rescue dog image for Azure Vision analysis */
 export async function uploadRescueImage(
   image: File,
