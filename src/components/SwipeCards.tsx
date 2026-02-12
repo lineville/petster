@@ -274,6 +274,7 @@ export function SwipeCards({ onBack, onComplete }: { onBack: () => void; onCompl
         <div className="aspect-[3/4] w-full overflow-hidden bg-muted relative">
           {imgUrl ? (
             <img
+              key={dog.id}
               src={imgUrl}
               alt={dog.name}
               className="h-full w-full object-cover object-top pointer-events-none"
