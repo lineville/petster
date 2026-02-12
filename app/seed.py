@@ -201,7 +201,7 @@ MOCK_DOGS = [
         image_url="/dogs/dog-13.jpg",
     ),
     Dog(
-        name="Coco",
+        name="Jimmy",
         breed="Shih Tzu",
         size=SizeEnum.small,
         age_years=6,
