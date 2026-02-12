@@ -65,6 +65,13 @@ function sizeLabel(s: string) {
 
 const SWIPE_THRESHOLD = 100
 
+const SIZE_LABELS: Record<string, string> = {
+  small: "Small",
+  medium: "Medium",
+  large: "Large",
+  extra_large: "Extra Large",
+}
+
 export function SwipeCards({ onBack, onComplete }: { onBack: () => void; onComplete: (liked: SwipedDog[], disliked: SwipedDog[]) => void }) {
   const [cards, setCards] = useState<SwipeCardType[]>([])
   const [images, setImages] = useState<Record<number, string>>({})
