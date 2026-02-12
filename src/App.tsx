@@ -61,10 +61,10 @@ function App() {
           <>
         <section className="mb-12 text-center">
           <h2 className="mb-3 text-4xl font-extrabold tracking-tight text-foreground">
-            What's your type? 🐶
+            Find a pet that loves you back ❤️
           </h2>
           <p className="text-lg text-muted-foreground">
-            Set your preferences and start swiping!
+            Swipe right on dogs you like, left on ones you don't. This will take 2 minutes.
           </p>
         </section>
 
