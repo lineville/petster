@@ -3,10 +3,11 @@ import { Slider } from "@/components/ui/slider"
 import { Button } from "@/components/ui/button"
 import { SwipeCards } from "@/components/SwipeCards"
 import { ResultsPage } from "@/components/ResultsPage"
+import { RescueUpload } from "@/components/RescueUpload"
 import type { SwipedDog } from "@/types"
 
 function App() {
-  const [step, setStep] = useState<"preferences" | "swipe" | "results">("preferences")
+  const [step, setStep] = useState<"preferences" | "swipe" | "results" | "rescue">("preferences")
   const [energy, setEnergy] = useState([20, 80])
   const [weight, setWeight] = useState([15, 100])
   const [age, setAge] = useState([0, 3])
@@ -18,17 +19,30 @@ function App() {
     <div className="min-h-screen bg-background">
       <header className="border-b border-border">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-4">
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">
+          <h1
+            className="text-2xl font-bold tracking-tight text-foreground cursor-pointer"
+            onClick={() => setStep("preferences")}
+          >
             🐾 Petster
           </h1>
-          <p className="text-sm text-muted-foreground">
-            Find your perfect pet match
-          </p>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setStep("rescue")}
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              🏥 Rescue Portal
+            </button>
+            <p className="text-sm text-muted-foreground hidden sm:block">
+              Find your perfect pet match
+            </p>
+          </div>
         </div>
       </header>
 
       <main className="mx-auto max-w-4xl px-6 py-6">
-        {step === "results" ? (
+        {step === "rescue" ? (
+          <RescueUpload onBack={() => setStep("preferences")} />
+        ) : step === "results" ? (
           <ResultsPage
             preferences={{ energy, weight, age }}
             liked={swipeResults.liked}
