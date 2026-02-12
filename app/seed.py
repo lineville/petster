@@ -6,18 +6,18 @@ from app.models import Dog, User, SizeEnum, SexEnum, CoatLengthEnum
 
 MOCK_DOGS = [
     Dog(
-        name="Buddy",
-        breed="Golden Retriever",
-        size=SizeEnum.large,
-        age_years=3,
-        weight_lbs=70,
+        name="Millie",
+        breed="Golden Border Collie Mix",
+        size=SizeEnum.medium,
+        age_years=7,
+        weight_lbs=40,
         color="Golden",
-        description="Friendly and loyal. Loves fetch and belly rubs.",
-        sex=SexEnum.male,
+        description="Flirty girl, makes direct eye contact. Very smart and affectionate. Loves to cuddle and play fetch.",
+        sex=SexEnum.female,
         coat_length=CoatLengthEnum.long,
         is_rescue=True,
-        good_with_cats=True,
-        good_with_kids=True,
+        good_with_cats=False,
+        good_with_kids=False,
         image_url="/dogs/dog-01.jpg",
     ),
     Dog(
