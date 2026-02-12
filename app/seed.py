@@ -66,8 +66,8 @@ MOCK_DOGS = [
         image_url="/dogs/dog-04.jpg",
     ),
     Dog(
-        name="Charlie",
-        breed="Beagle",
+        name="Whiskey",
+        breed="Doodle",
         size=SizeEnum.medium,
         age_years=5,
         weight_lbs=30,
