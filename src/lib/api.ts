@@ -1,5 +1,5 @@
 /**
- * API client for the Petster FastAPI backend.
+ * API client for the Tingrrr FastAPI backend.
  */
 
 const BASE = "/api/v1"
@@ -95,7 +95,7 @@ export async function getDog(id: number): Promise<DogOut> {
 /** Create or find demo user (idempotent) */
 export async function getOrCreateUser(
   username = "demo_user",
-  email = "demo@petster.app"
+  email = "demo@tingrrr.app"
 ): Promise<UserOut> {
   // Try to find existing user
   const usersRes = await fetch(`${BASE}/users/`)

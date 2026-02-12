@@ -1,6 +1,6 @@
-# React + TypeScript + Vite
+# Tingrrr 🔥
 
-An app to help people find their dream pet and help rescues easily manage their pet listings.
+Swipe right on your perfect pup. A Tinder-style app for matching with adoptable dogs.
 
 ## Architecture
 
@@ -28,7 +28,7 @@ app/
 
 **Option A – SQLite (default, no setup needed):**
 
-The app defaults to a local SQLite database (`petster.db`). No Docker or Postgres required.
+The app defaults to a local SQLite database (`tingrrr.db`). No Docker or Postgres required.
 
 **Option B – PostgreSQL via Docker:**
 
@@ -39,7 +39,7 @@ docker compose up -d
 Then set `DATABASE_URL` in your `.env`:
 
 ```
-DATABASE_URL=postgresql+psycopg://petster:petster@localhost:5432/petster
+DATABASE_URL=postgresql+psycopg://tingrrr:tingrrr@localhost:5432/tingrrr
 ```
 
 ### 2. Install dependencies

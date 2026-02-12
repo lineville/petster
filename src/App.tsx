@@ -17,23 +17,23 @@ function App() {
 
     return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border">
+      <header className="bg-linear-to-r from-tinder-gradient-from to-tinder-gradient-to text-white shadow-md">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-4">
           <h1
-            className="text-2xl font-bold tracking-tight text-foreground cursor-pointer"
+            className="text-2xl font-extrabold tracking-tight cursor-pointer"
             onClick={() => setStep("preferences")}
           >
-            🐾 Petster
+            🔥 Tingrrr
           </h1>
           <div className="flex items-center gap-4">
             <button
               onClick={() => setStep("rescue")}
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              className="text-sm font-medium text-white/70 hover:text-white transition-colors"
             >
               🏥 Rescue Portal
             </button>
-            <p className="text-sm text-muted-foreground hidden sm:block">
-              Find your perfect pet match
+            <p className="text-sm text-white/80 hidden sm:block">
+              Swipe right on your perfect pup
             </p>
           </div>
         </div>
@@ -60,18 +60,18 @@ function App() {
         ) : (
           <>
         <section className="mb-12 text-center">
-          <h2 className="mb-3 text-4xl font-bold tracking-tight text-foreground">
-            Tell us a bit about your dog preferences
+          <h2 className="mb-3 text-4xl font-extrabold tracking-tight text-foreground">
+            What's your type? 🐶
           </h2>
           <p className="text-lg text-muted-foreground">
-            This will take no more than 3 minutes!
+            Set your preferences and start swiping!
           </p>
         </section>
 
         <section className="mx-auto max-w-xl space-y-10">
-          <div className="space-y-4 rounded-lg border border-border bg-card p-6 shadow-sm">
+          <div className="space-y-4 rounded-2xl border border-border bg-card p-6 shadow-sm">
             <div className="flex items-center justify-between">
-              <label className="text-sm font-medium text-foreground">
+              <label className="text-sm font-semibold text-foreground">
                 Energy Level
               </label>
               <span className="text-sm tabular-nums text-muted-foreground">
@@ -90,9 +90,9 @@ function App() {
             </div>
           </div>
 
-          <div className="space-y-4 rounded-lg border border-border bg-card p-6 shadow-sm">
+          <div className="space-y-4 rounded-2xl border border-border bg-card p-6 shadow-sm">
             <div className="flex items-center justify-between">
-              <label className="text-sm font-medium text-foreground">
+              <label className="text-sm font-semibold text-foreground">
                 Weight
               </label>
               <span className="text-sm tabular-nums text-muted-foreground">
@@ -112,9 +112,9 @@ function App() {
             </div>
           </div>
 
-          <div className="space-y-4 rounded-lg border border-border bg-card p-6 shadow-sm">
+          <div className="space-y-4 rounded-2xl border border-border bg-card p-6 shadow-sm">
             <div className="flex items-center justify-between">
-              <label className="text-sm font-medium text-foreground">
+              <label className="text-sm font-semibold text-foreground">
                 Age
               </label>
               <span className="text-sm tabular-nums text-muted-foreground">
@@ -137,10 +137,10 @@ function App() {
           <div className="flex justify-center pt-4">
             <Button
               size="lg"
-              className="h-14 w-full max-w-xl text-lg font-semibold"
+              className="h-14 w-full max-w-xl text-lg font-bold bg-linear-to-r from-tinder-gradient-from to-tinder-gradient-to text-white rounded-full shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-200"
               onClick={() => setStep("swipe")}
             >
-              Find my match 🐾
+              Start Swiping 🔥
             </Button>
           </div>
         </section>

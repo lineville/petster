@@ -6,14 +6,14 @@ from functools import lru_cache
 
 class Settings(BaseSettings):
     # ── Database ─────────────────────────────────────────────────────────
-    database_url: str = "sqlite:///./petster.db"
+    database_url: str = "sqlite:///./tingrrr.db"
 
     # ── Azure AI Vision ──────────────────────────────────────────────────
     azure_vision_endpoint: str = ""
     azure_vision_key: str = ""
 
     # ── App ──────────────────────────────────────────────────────────────
-    app_name: str = "Petster API"
+    app_name: str = "Tingrrr API"
     debug: bool = True
 
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8", "extra": "ignore"}

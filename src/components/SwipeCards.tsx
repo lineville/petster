@@ -186,7 +186,7 @@ export function SwipeCards({ onBack, onComplete }: { onBack: () => void; onCompl
     return (
       <div className="flex flex-col items-center gap-4 py-16">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        <p className="text-muted-foreground">Loading dogs from the shelter...</p>
+        <p className="text-muted-foreground">Finding pups near you...</p>
       </div>
     )
   }
@@ -252,7 +252,7 @@ export function SwipeCards({ onBack, onComplete }: { onBack: () => void; onCompl
             ← Start over
           </Button>
           <Button
-            className="gap-2"
+            className="gap-2 bg-linear-to-r from-tinder-gradient-from to-tinder-gradient-to text-white rounded-full shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all duration-200"
             onClick={() => onComplete(liked.map(toSwipedDog), disliked.map(toSwipedDog))}
           >
             <Sparkles className="h-4 w-4" />
@@ -283,7 +283,7 @@ export function SwipeCards({ onBack, onComplete }: { onBack: () => void; onCompl
       {/* Card */}
       <div
         className={cn(
-          "relative w-full max-w-sm cursor-grab select-none overflow-hidden rounded-2xl border border-border bg-card shadow-lg transition-transform",
+          "relative w-full max-w-sm cursor-grab select-none overflow-hidden rounded-3xl border border-border bg-card shadow-xl transition-transform",
           exitDirection === "left" && "animate-swipe-left",
           exitDirection === "right" && "animate-swipe-right",
           isDragging && "cursor-grabbing"
@@ -370,18 +370,18 @@ export function SwipeCards({ onBack, onComplete }: { onBack: () => void; onCompl
         <Button
           variant="outline"
           size="icon"
-          className="h-14 w-14 rounded-full border-2 border-red-300 text-red-500 hover:bg-red-50 hover:text-red-600"
+          className="h-16 w-16 rounded-full border-2 border-red-300 text-red-500 hover:bg-red-50 hover:text-red-600 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110"
           onClick={() => swipe("left")}
         >
-          <X className="h-6 w-6" />
+          <X className="h-7 w-7" />
         </Button>
         <Button
           variant="outline"
           size="icon"
-          className="h-14 w-14 rounded-full border-2 border-green-300 text-green-500 hover:bg-green-50 hover:text-green-600"
+          className="h-16 w-16 rounded-full border-2 border-green-300 text-green-500 hover:bg-green-50 hover:text-green-600 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110"
           onClick={() => swipe("right")}
         >
-          <Heart className="h-6 w-6" />
+          <Heart className="h-7 w-7" />
         </Button>
       </div>
 
