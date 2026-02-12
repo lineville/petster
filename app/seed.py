@@ -96,8 +96,8 @@ MOCK_DOGS = [
         image_url="/dogs/dog-06.jpg",
     ),
     Dog(
-        name="Rocky",
-        breed="Rottweiler",
+        name="Maggie",
+        breed="Aussie",
         size=SizeEnum.extra_large,
         age_years=6,
         weight_lbs=110,
