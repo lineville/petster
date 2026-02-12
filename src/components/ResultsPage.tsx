@@ -534,73 +534,74 @@ function DogCard({
 
 function LoadingSkeleton() {
   return (
-    <div className="space-y-12 pb-16">
-      {/* Hero skeleton */}
-      <section className="text-center">
-        <div className="mx-auto max-w-2xl space-y-4">
-          <div className="h-4 w-40 mx-auto rounded bg-muted animate-pulse" />
-          <div className="h-10 w-80 mx-auto rounded bg-muted animate-pulse" />
-          <div className="h-6 w-full rounded bg-muted animate-pulse" />
-          <div className="h-6 w-3/4 mx-auto rounded bg-muted animate-pulse" />
-        </div>
-      </section>
+    <div className="flex flex-col items-center justify-center py-24 gap-8">
+      <div className="relative h-24 w-72">
+        {/* Ground line */}
+        <div className="absolute bottom-2 left-0 right-0 h-px bg-border" />
 
-      {/* Stats skeleton */}
-      <section>
-        <div className="grid grid-cols-3 gap-4 mx-auto max-w-lg">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <div
-              key={i}
-              className="text-center p-4 rounded-lg bg-card border border-border"
-            >
-              <div className="h-7 w-8 mx-auto rounded bg-muted animate-pulse mb-1" />
-              <div className="h-3 w-16 mx-auto rounded bg-muted animate-pulse" />
-            </div>
-          ))}
+        {/* Bouncing tennis ball */}
+        <div className="absolute bottom-3 animate-[ballBounce_2s_ease-in-out_infinite]">
+          <span className="text-2xl">🎾</span>
         </div>
-      </section>
 
-      {/* Breeds skeleton */}
-      <section>
-        <div className="h-8 w-60 mx-auto rounded bg-muted animate-pulse mb-6" />
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div
-              key={i}
-              className="rounded-xl border border-border bg-card p-5 space-y-3"
-            >
-              <div className="h-5 w-32 rounded bg-muted animate-pulse" />
-              <div className="h-2 w-full rounded-full bg-muted animate-pulse" />
-              <div className="h-4 w-full rounded bg-muted animate-pulse" />
-              <div className="h-4 w-2/3 rounded bg-muted animate-pulse" />
-            </div>
-          ))}
+        {/* Running dog (chases ball, jumps up and down) */}
+        <div className="absolute bottom-2 animate-[dogRun_2s_ease-in-out_infinite]">
+          <span className="text-4xl inline-block animate-[dogJump_0.5s_ease-in-out_infinite]">
+            🐕‍🦺
+          </span>
         </div>
-      </section>
+      </div>
 
-      {/* Dog cards skeleton */}
-      <section>
-        <div className="h-8 w-60 mx-auto rounded bg-muted animate-pulse mb-6" />
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 12 }).map((_, i) => (
-            <div
-              key={i}
-              className="rounded-xl border border-border bg-card overflow-hidden"
-            >
-              <div className="aspect-square bg-muted animate-pulse" />
-              <div className="p-4 space-y-2">
-                <div className="h-5 w-24 rounded bg-muted animate-pulse" />
-                <div className="h-4 w-full rounded bg-muted animate-pulse" />
-                <div className="h-4 w-2/3 rounded bg-muted animate-pulse" />
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
+      {/* Paw prints trail */}
+      <div className="flex gap-3">
+        {[0, 1, 2, 3, 4].map((i) => (
+          <span
+            key={i}
+            className="text-sm opacity-0 animate-[fadeInOut_2s_ease-in-out_infinite]"
+            style={{ animationDelay: `${i * 300}ms` }}
+          >
+            🐾
+          </span>
+        ))}
+      </div>
 
-      <p className="text-center text-muted-foreground animate-pulse text-lg">
-        ✨ AI is crafting your perfect dog profile...
+      <p className="text-muted-foreground animate-pulse text-lg">
+        ✨ Fetching your perfect matches...
       </p>
+
+      <style>{`
+        /* Ball: bounces from right to left, then instantly resets */
+        @keyframes ballBounce {
+          0%   { left: 90%; transform: translateY(0); }
+          15%  { left: 70%; transform: translateY(-24px); }
+          30%  { left: 50%; transform: translateY(0); }
+          45%  { left: 35%; transform: translateY(-16px); }
+          60%  { left: 20%; transform: translateY(0); }
+          70%  { left: 10%; transform: translateY(-10px); }
+          80%  { left: 5%;  transform: translateY(0); }
+          80.01% { left: 90%; transform: translateY(0); }
+          100% { left: 90%; transform: translateY(0); }
+        }
+
+        /* Dog: runs from right to left, then instantly resets */
+        @keyframes dogRun {
+          0%   { left: 100%; }
+          80%  { left: 15%; }
+          80.01% { left: 100%; }
+          100% { left: 100%; }
+        }
+
+        @keyframes dogJump {
+          0%   { transform: translateY(0) rotate(-2deg); }
+          50%  { transform: translateY(-12px) rotate(2deg); }
+          100% { transform: translateY(0) rotate(-2deg); }
+        }
+
+        @keyframes fadeInOut {
+          0%, 100% { opacity: 0; }
+          50%      { opacity: 0.5; }
+        }
+      `}</style>
     </div>
   )
 }
