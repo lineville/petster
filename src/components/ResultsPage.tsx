@@ -124,7 +124,7 @@ export function ResultsPage({
 
     async function generate() {
       try {
-        const res = await fetch("/api/generate-profile", {
+        const res = await fetch("/api/v1/generate-profile", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
