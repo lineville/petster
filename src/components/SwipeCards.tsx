@@ -12,51 +12,13 @@ import {
   type SwipeCard as SwipeCardType,
 } from "@/lib/api"
 
-const BREED_IMAGE_MAP: Record<string, string> = {
-  "golden retriever": "retriever/golden",
-  "labrador retriever": "retriever/labrador",
-  "german shepherd": "germanshepherd",
-  "french bulldog": "bulldog/french",
-  beagle: "beagle",
-  poodle: "poodle/standard",
-  rottweiler: "rottweiler",
-  "australian shepherd": "australian/shepherd",
-  boxer: "boxer",
-  "yorkshire terrier": "terrier/yorkshire",
-  "siberian husky": "husky",
-  dachshund: "dachshund",
-  "bernese mountain dog": "mountain/bernese",
-  "shih tzu": "shihtzu",
-  "great dane": "dane/great",
-  "pit bull terrier": "pitbull",
-  corgi: "corgi/cardigan",
-  "doberman pinscher": "doberman",
-  pomeranian: "pomeranian",
-  "border collie": "collie/border",
-  "cavalier king charles spaniel": "spaniel/cocker",
-  "irish setter": "setter/irish",
-  "great pyrenees": "pyrenees",
-  samoyed: "samoyed",
-  dalmatian: "dalmatian",
-  "miniature schnauzer": "schnauzer/miniature",
-}
+/** Total number of local dog images in public/dogs/ */
+const LOCAL_DOG_IMAGE_COUNT = 14
 
-async function fetchBreedImage(breed: string): Promise<string> {
-  const key = breed.toLowerCase().trim()
-  const mapped = BREED_IMAGE_MAP[key]
-  if (mapped) {
-    try {
-      const res = await fetch(`https://dog.ceo/api/breed/${mapped}/images/random`)
-      const data = (await res.json()) as { status: string; message: string }
-      if (data.status === "success") return data.message
-    } catch { /* fall through */ }
-  }
-  try {
-    const res = await fetch("https://dog.ceo/api/breeds/image/random")
-    const data = (await res.json()) as { status: string; message: string }
-    if (data.status === "success") return data.message
-  } catch { /* ignore */ }
-  return ""
+/** Map a dog ID to a local image path from public/dogs/ */
+function localDogImage(dogId: number): string {
+  const index = ((dogId - 1) % LOCAL_DOG_IMAGE_COUNT) + 1
+  return `/dogs/dog-${String(index).padStart(2, "0")}.jpg`
 }
 
 function sizeLabel(s: string) {
@@ -99,15 +61,11 @@ export function SwipeCards({ onBack, onComplete }: { onBack: () => void; onCompl
         setCards(swipeCards)
         setLoading(false)
 
-        // Fetch breed images in parallel
-        const imgPromises = swipeCards.map(async (sc) => {
-          const url = sc.dog.image_url || (await fetchBreedImage(sc.dog.breed))
-          return { id: sc.dog.id, url }
-        })
-        const imgs = await Promise.all(imgPromises)
-        if (cancelled) return
+        // Map dogs to local images from public/dogs/
         const map: Record<number, string> = {}
-        for (const { id, url } of imgs) map[id] = url
+        for (const sc of swipeCards) {
+          map[sc.dog.id] = sc.dog.image_url || localDogImage(sc.dog.id)
+        }
         setImages(map)
       } catch (err) {
         console.error("Failed to load swipe cards:", err)
@@ -202,14 +160,11 @@ export function SwipeCards({ onBack, onComplete }: { onBack: () => void; onCompl
         setDisliked([])
         const freshCards = await getSwipeCards(userId, 20)
         setCards(freshCards)
-        // Pre-fetch images for new cards
+        // Map to local images
         const imgs: Record<number, string> = {}
-        await Promise.all(
-          freshCards.map(async (c) => {
-            const url = c.dog.image_url || (await fetchBreedImage(c.dog.breed))
-            if (url) imgs[c.dog.id] = url
-          })
-        )
+        for (const c of freshCards) {
+          imgs[c.dog.id] = c.dog.image_url || localDogImage(c.dog.id)
+        }
         setImages(imgs)
         setLoading(false)
       } catch (err) {

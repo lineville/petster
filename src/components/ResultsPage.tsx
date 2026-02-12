@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
+import { Loader2 } from "lucide-react"
 import type {
   Preferences,
   SwipedDog,
@@ -12,98 +13,17 @@ import {
   type DogOut,
 } from "@/lib/api"
 
-const BREED_API_MAP: Record<string, string> = {
-  "golden retriever": "retriever/golden",
-  "labrador retriever": "retriever/labrador",
-  labrador: "labrador",
-  "french bulldog": "bulldog/french",
-  "english bulldog": "bulldog/english",
-  "border collie": "collie/border",
-  collie: "collie/border",
-  "german shepherd": "germanshepherd",
-  "bernese mountain dog": "mountain/bernese",
-  "australian shepherd": "australian/shepherd",
-  "siberian husky": "husky",
-  husky: "husky",
-  poodle: "poodle/standard",
-  "standard poodle": "poodle/standard",
-  "miniature poodle": "poodle/miniature",
-  beagle: "beagle",
-  boxer: "boxer",
-  dachshund: "dachshund",
-  pomeranian: "pomeranian",
-  "shih tzu": "shihtzu",
-  "yorkshire terrier": "terrier/yorkshire",
-  chihuahua: "chihuahua",
-  "great dane": "dane/great",
-  doberman: "doberman",
-  rottweiler: "rottweiler",
-  corgi: "corgi/cardigan",
-  "pembroke welsh corgi": "pembroke",
-  maltese: "maltese",
-  havanese: "havanese",
-  "cavalier king charles spaniel": "spaniel/cocker",
-  "cocker spaniel": "spaniel/cocker",
-  vizsla: "vizsla",
-  weimaraner: "weimaraner",
-  samoyed: "samoyed",
-  akita: "akita",
-  newfoundland: "newfoundland",
-  "saint bernard": "stbernard",
-  "irish setter": "setter/irish",
-  "english setter": "setter/english",
-  "basset hound": "hound/basset",
-  "pit bull": "pitbull",
-  "shetland sheepdog": "sheepdog/shetland",
-  "shiba inu": "shiba",
-  "bichon frise": "bichon",
-  malamute: "malamute",
-  dalmatian: "dalmatian",
-  greyhound: "greyhound",
-  whippet: "whippet",
-  "jack russell terrier": "terrier/russell",
-  "bull terrier": "terrier/bull",
-  "scottish terrier": "terrier/scottish",
-  "west highland terrier": "terrier/westhighland",
-  "airedale terrier": "terrier/airedale",
-  "boston terrier": "bulldog/boston",
-  papillon: "papillon",
-  "lhasa apso": "lhasa",
-  "chow chow": "chow",
-  "rhodesian ridgeback": "ridgeback/rhodesian",
-  mastiff: "mastiff/english",
-  "english mastiff": "mastiff/english",
-  "tibetan mastiff": "mastiff/tibetan",
-  "cavalier spaniel": "spaniel/cocker",
-  "springer spaniel": "spaniel/springer",
+/** Total local dog images in public/dogs/ */
+const LOCAL_DOG_IMAGE_COUNT = 14
+
+function localDogImage(dogId: number): string {
+  const index = ((dogId - 1) % LOCAL_DOG_IMAGE_COUNT) + 1
+  return `/dogs/dog-${String(index).padStart(2, "0")}.jpg`
 }
 
-async function fetchDogImage(breed: string): Promise<string> {
-  const key = breed.toLowerCase().trim()
-  const apiBreed = BREED_API_MAP[key]
-
-  if (apiBreed) {
-    try {
-      const res = await fetch(
-        `https://dog.ceo/api/breed/${apiBreed}/images/random`
-      )
-      const data = (await res.json()) as { status: string; message: string }
-      if (data.status === "success") return data.message
-    } catch {
-      // fall through to fallback
-    }
-  }
-
-  // Fallback: random dog image
-  try {
-    const res = await fetch("https://dog.ceo/api/breeds/image/random")
-    const data = (await res.json()) as { status: string; message: string }
-    if (data.status === "success") return data.message
-  } catch {
-    // ignore
-  }
-
-  return ""
+interface AIGeneratedImage {
+  url: string
+  description: string
 }
 
 interface ResultsPageProps {
@@ -125,9 +45,10 @@ export function ResultsPage({
   const [dogImages, setDogImages] = useState<Record<string, string>>({})
   const [backendRecs, setBackendRecs] = useState<DogOut[]>([])
   const [backendRecsMessage, setBackendRecsMessage] = useState("")
-  const [backendRecImages, setBackendRecImages] = useState<Record<number, string>>({})
+  const [aiImages, setAiImages] = useState<AIGeneratedImage[]>([])
+  const [aiImagesLoading, setAiImagesLoading] = useState(true)
 
-  // Fetch backend recommendations in parallel with the AI profile
+  // Fetch backend recommendations — use local images
   useEffect(() => {
     let cancelled = false
     async function loadRecs() {
@@ -137,17 +58,6 @@ export function ResultsPage({
         if (cancelled) return
         setBackendRecs(recs.dogs)
         setBackendRecsMessage(recs.message)
-
-        // Fetch images
-        const imgPromises = recs.dogs.map(async (dog) => {
-          const url = await fetchDogImage(dog.breed)
-          return { id: dog.id, url }
-        })
-        const imgs = await Promise.all(imgPromises)
-        if (cancelled) return
-        const map: Record<number, string> = {}
-        for (const { id, url } of imgs) map[id] = url
-        setBackendRecImages(map)
       } catch {
         // Non-critical – backend recs are supplementary
       }
@@ -156,12 +66,49 @@ export function ResultsPage({
     return () => { cancelled = true }
   }, [])
 
+  // Generate 3 AI images based on swipe history
+  useEffect(() => {
+    let cancelled = false
+    async function generateImages() {
+      try {
+        setAiImagesLoading(true)
+        const res = await fetch("/api/generate-images", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            preferences,
+            results: { liked, disliked },
+          }),
+        })
+
+        if (!res.ok) {
+          const errData = (await res.json().catch(() => null)) as {
+            error?: string
+          } | null
+          console.error("AI image generation failed:", errData?.error)
+          setAiImagesLoading(false)
+          return
+        }
+
+        const data = (await res.json()) as { images: AIGeneratedImage[] }
+        if (cancelled) return
+        setAiImages(data.images)
+        setAiImagesLoading(false)
+      } catch (err) {
+        console.error("AI image generation error:", err)
+        if (!cancelled) setAiImagesLoading(false)
+      }
+    }
+    generateImages()
+    return () => { cancelled = true }
+  }, [preferences, liked, disliked])
+
   useEffect(() => {
     let cancelled = false
 
     async function generate() {
       try {
-        const res = await fetch("/api/v1/generate-profile", {
+        const res = await fetch("/api/generate-profile", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -184,19 +131,11 @@ export function ResultsPage({
         setProfile(data)
         setLoading(false)
 
-        // Fetch images for all dog profiles
-        const imagePromises = data.dogProfiles.map(async (dog) => {
-          const url = await fetchDogImage(dog.breed)
-          return { name: dog.name, url }
-        })
-
-        const images = await Promise.all(imagePromises)
-        if (cancelled) return
-
+        // Map dog profiles to local images
         const imageMap: Record<string, string> = {}
-        for (const { name, url } of images) {
-          imageMap[name] = url
-        }
+        data.dogProfiles.forEach((dog, i) => {
+          imageMap[dog.name] = `/dogs/dog-${String((i % LOCAL_DOG_IMAGE_COUNT) + 1).padStart(2, "0")}.jpg`
+        })
         setDogImages(imageMap)
       } catch (err) {
         if (cancelled) return
@@ -385,6 +324,62 @@ export function ResultsPage({
       {/* CTA */}
       <section className="text-center pt-4">
 
+      {/* 🎨 AI-Generated Recommended Dogs */}
+      <section>
+        <h3 className="text-2xl font-bold text-foreground mb-2 text-center">
+          🎨 AI-Generated Matches
+        </h3>
+        <p className="text-center text-muted-foreground mb-6">
+          Custom dog portraits created just for you based on your swipes
+        </p>
+        {aiImagesLoading ? (
+          <div className="flex flex-col items-center gap-4 py-8">
+            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            <p className="text-muted-foreground animate-pulse">
+              🎨 AI is painting your perfect dogs...
+            </p>
+          </div>
+        ) : aiImages.length > 0 ? (
+          <div className="grid gap-6 sm:grid-cols-3">
+            {aiImages.map((img, i) => (
+              <div
+                key={i}
+                className="rounded-xl border border-border bg-card overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 animate-slide-up"
+                style={{ animationDelay: `${i * 120}ms` }}
+              >
+                <div className="aspect-square w-full overflow-hidden bg-muted relative">
+                  {img.url ? (
+                    <img
+                      src={img.url}
+                      alt={img.description}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-violet-100 to-pink-100">
+                      <span className="text-5xl">🎨</span>
+                    </div>
+                  )}
+                  <div className="absolute top-3 right-3">
+                    <span className="px-2 py-1 rounded-full text-xs font-medium bg-violet-100/90 text-violet-700 backdrop-blur-sm">
+                      ✨ AI Generated
+                    </span>
+                  </div>
+                </div>
+                <div className="p-4">
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {img.description}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-center text-muted-foreground">
+            Could not generate AI images at this time.
+          </p>
+        )}
+      </section>
+
       {/* Backend-powered recommendations from your swipe history */}
       {backendRecs.length > 0 && (
         <section>
@@ -396,7 +391,7 @@ export function ResultsPage({
           </p>
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {backendRecs.map((dog, i) => {
-              const imgUrl = backendRecImages[dog.id] ?? ""
+              const imgUrl = localDogImage(dog.id)
               return (
                 <div
                   key={dog.id}
