@@ -83,9 +83,9 @@ Return ONLY valid JSON with this exact structure (no markdown, no code fences):
   ]
 }`
 
-  const endpoint = "https://petster.openai.azure.com/openai/deployments/gpt-4o-mini/chat/completions?api-version=2024-08-01-preview"
+  const endpoint = "https://tingrrr.openai.azure.com/openai/deployments/gpt-4o-mini/chat/completions?api-version=2024-08-01-preview"
 
-  console.log("[petster] Calling Azure OpenAI:", endpoint)
+  console.log("[tingrrr] Calling Azure OpenAI:", endpoint)
 
   const response = await fetch(endpoint, {
     method: "POST",
@@ -108,11 +108,11 @@ Return ONLY valid JSON with this exact structure (no markdown, no code fences):
   })
 
   const rawText = await response.text()
-  console.log("[petster] Response status:", response.status)
+  console.log("[tingrrr] Response status:", response.status)
   try {
-    console.log("[petster] Raw response:", JSON.stringify(JSON.parse(rawText), null, 2))
+    console.log("[tingrrr] Raw response:", JSON.stringify(JSON.parse(rawText), null, 2))
   } catch {
-    console.log("[petster] Raw response (not JSON):", rawText)
+    console.log("[tingrrr] Raw response (not JSON):", rawText)
   }
 
   if (!response.ok) {

@@ -229,7 +229,7 @@ export function ResultsPage({
       <section className="text-center">
         <div className="mx-auto max-w-2xl">
           <p className="text-sm font-medium uppercase tracking-widest text-muted-foreground mb-3">
-            Your Pet Personality
+            Your Tingrrr Profile
           </p>
           <h2 className="text-4xl font-bold tracking-tight text-foreground mb-4">
             {profile.ownerTitle}
@@ -458,7 +458,7 @@ export function ResultsPage({
         </section>
       )}
 
-        <Button variant="outline" size="lg" onClick={onStartOver}>
+        <Button variant="outline" size="lg" onClick={onStartOver} className="rounded-full">
           ← Start Over
         </Button>
       </section>

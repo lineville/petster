@@ -84,7 +84,7 @@ export function RescueUpload({ onBack }: RescueUploadProps) {
   return (
     <div className="mx-auto max-w-lg space-y-8">
       <div className="text-center">
-        <h2 className="text-3xl font-bold tracking-tight text-foreground mb-2">
+        <h2 className="text-3xl font-extrabold tracking-tight text-foreground mb-2">
           🏥 Rescue Upload
         </h2>
         <p className="text-muted-foreground">
@@ -95,7 +95,7 @@ export function RescueUpload({ onBack }: RescueUploadProps) {
 
       {/* Image upload area */}
       <div
-        className="relative flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-border bg-card p-8 cursor-pointer hover:border-primary/50 transition-colors"
+        className="relative flex flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed border-border bg-card p-8 cursor-pointer hover:border-primary/50 transition-colors"
         onClick={() => fileRef.current?.click()}
       >
         {preview ? (
@@ -125,7 +125,7 @@ export function RescueUpload({ onBack }: RescueUploadProps) {
       </div>
 
       {/* Optional fields the rescue already knows */}
-      <div className="space-y-4 rounded-lg border border-border bg-card p-6 shadow-sm">
+      <div className="space-y-4 rounded-2xl border border-border bg-card p-6 shadow-sm">
         <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
           Info you already know (optional)
         </p>

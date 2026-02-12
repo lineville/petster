@@ -8,7 +8,7 @@ import { parseBody, generateProfile } from './server/api.ts'
 
 function apiPlugin(): Plugin {
   return {
-    name: 'petster-api',
+    name: 'tingrrr-api',
     configureServer(server) {
       server.middlewares.use('/api/generate-profile', async (req, res) => {
         if (req.method !== 'POST') {

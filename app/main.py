@@ -1,4 +1,4 @@
-"""Petster API – FastAPI application entry point."""
+"""Tingrrr API – FastAPI application entry point."""
 
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
@@ -20,7 +20,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title=settings.app_name,
     description=(
-        "Backend API for Petster – a pet-finder app.\n\n"
+        "Backend API for Tingrrr – swipe right on your perfect pup.\n\n"
         "**Features:**\n"
         "- Browse & manage dog profiles\n"
         "- Swipe left/right to build a preference profile\n"

@@ -4,9 +4,9 @@ services:
   db:
     image: postgres:16-alpine
     environment:
-      POSTGRES_USER: petster
-      POSTGRES_PASSWORD: petster
-      POSTGRES_DB: petster
+      POSTGRES_USER: tingrrr
+      POSTGRES_PASSWORD: tingrrr
+      POSTGRES_DB: tingrrr
     ports:
       - "5432:5432"
     volumes:
