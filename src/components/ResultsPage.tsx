@@ -495,20 +495,6 @@ function DogCard({
             <span className="text-5xl animate-pulse">🐕</span>
           </div>
         )}
-        {/* Energy badge */}
-        <div className="absolute top-3 right-3">
-          <span
-            className={`px-2 py-1 rounded-full text-xs font-medium backdrop-blur-sm ${
-              dog.energy === "Very High" || dog.energy === "High"
-                ? "bg-orange-100/90 text-orange-700"
-                : dog.energy === "Medium"
-                  ? "bg-blue-100/90 text-blue-700"
-                  : "bg-green-100/90 text-green-700"
-            }`}
-          >
-            ⚡ {dog.energy}
-          </span>
-        </div>
       </div>
       <div className="p-4 space-y-2">
         <div className="flex items-baseline justify-between">
@@ -520,9 +506,20 @@ function DogCard({
         <p className="text-sm text-muted-foreground leading-relaxed">
           {dog.personality}
         </p>
-        <div className="flex gap-3 text-xs text-muted-foreground pt-1">
+        <div className="flex flex-wrap gap-3 text-xs text-muted-foreground pt-1">
           <span>🎂 {dog.age}</span>
           <span>⚖️ {dog.weight}</span>
+          <span
+            className={`px-2 py-0.5 rounded-full font-medium ${
+              dog.energy === "Very High" || dog.energy === "High"
+                ? "bg-orange-100 text-orange-700"
+                : dog.energy === "Medium"
+                  ? "bg-blue-100 text-blue-700"
+                  : "bg-green-100 text-green-700"
+            }`}
+          >
+            ⚡ {dog.energy}
+          </span>
         </div>
       </div>
     </div>
