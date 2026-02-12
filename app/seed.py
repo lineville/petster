@@ -87,7 +87,7 @@ MOCK_DOGS = [
         age_years=2,
         weight_lbs=45,
         color="White",
-        description="Hypoallergenic and loves ball. Ball is life and life is ball!",
+        description="Hypoallergenic, loves to fetch ball. Ball is life, life is ball!",
         sex=SexEnum.female,
         coat_length=CoatLengthEnum.long,
         is_rescue=False,
@@ -141,7 +141,7 @@ MOCK_DOGS = [
         image_url="/dogs/dog-09.jpg",
     ),
     Dog(
-        name="Molly",
+        name="Cooper",
         breed="Yorkshire Terrier",
         size=SizeEnum.small,
         age_years=7,
