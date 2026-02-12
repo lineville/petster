@@ -125,3 +125,112 @@ Return ONLY valid JSON with this exact structure (no markdown, no code fences):
   const content = data.choices[0].message.content
   return JSON.parse(content) as Record<string, unknown>
 }
+
+/**
+ * Given the user's swipe history, generate 3 DALL-E images of recommended dogs.
+ * Uses Azure OpenAI gpt-4o-mini to craft prompts, then DALL-E 3 to render them.
+ */
+export async function generateRecommendedImages(
+  body: RequestBody,
+  apiKey: string
+): Promise<{ images: Array<{ url: string; description: string }> }> {
+  const { preferences, results } = body
+
+  // Step 1: Use GPT to create 3 vivid DALL-E prompts based on swipe history
+  const promptRequest = `Based on this user's dog preferences and swiping behavior, generate exactly 3 creative image prompts for DALL-E to create photorealistic pictures of recommended dogs.
+
+User Preferences:
+- Energy level range: ${preferences.energy[0]}% – ${preferences.energy[1]}%
+- Weight range: ${preferences.weight[0]} – ${preferences.weight[1]} lbs
+- Age preference: ${AGE_LABELS[preferences.age[0]]} to ${AGE_LABELS[preferences.age[1]]}
+
+Dogs they LIKED: ${results.liked.map((d) => `${d.name} (${d.breed}, ${d.age}, ${d.weight})`).join(", ") || "None"}
+Dogs they DISLIKED: ${results.disliked.map((d) => `${d.name} (${d.breed}, ${d.age}, ${d.weight})`).join(", ") || "None"}
+
+For each image, provide:
+- "prompt": A detailed DALL-E prompt for a cute, photorealistic dog photo in a warm setting (park, living room, backyard). Include breed, approximate size, coloring, and mood. Keep it under 200 characters.
+- "description": A short 1-sentence description of the recommended dog (breed, age, why it matches).
+
+Return ONLY valid JSON:
+{
+  "recommendations": [
+    { "prompt": "string", "description": "string" },
+    { "prompt": "string", "description": "string" },
+    { "prompt": "string", "description": "string" }
+  ]
+}`
+
+  const gptEndpoint =
+    "https://petster.openai.azure.com/openai/deployments/gpt-4o-mini/chat/completions?api-version=2024-08-01-preview"
+
+  console.log("[petster] Generating DALL-E prompts via GPT...")
+  const gptRes = await fetch(gptEndpoint, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "api-key": apiKey },
+    body: JSON.stringify({
+      response_format: { type: "json_object" },
+      messages: [
+        { role: "system", content: "You are a dog breed expert. Always respond with valid JSON." },
+        { role: "user", content: promptRequest },
+      ],
+      temperature: 0.9,
+    }),
+  })
+
+  if (!gptRes.ok) {
+    const errText = await gptRes.text()
+    throw new Error(`GPT prompt generation failed: ${gptRes.status} ${errText}`)
+  }
+
+  const gptData = (await gptRes.json()) as {
+    choices: Array<{ message: { content: string } }>
+  }
+  const recs = JSON.parse(gptData.choices[0].message.content) as {
+    recommendations: Array<{ prompt: string; description: string }>
+  }
+
+  console.log("[petster] Generated prompts:", recs.recommendations.map((r) => r.prompt))
+
+  // Step 2: Call DALL-E 3 for each prompt
+  const dalleEndpoint =
+    "https://petster.openai.azure.com/openai/deployments/dall-e-3/images/generations?api-version=2024-02-01"
+
+  const imageResults: Array<{ url: string; description: string }> = []
+
+  for (const rec of recs.recommendations) {
+    try {
+      console.log("[petster] Generating DALL-E image:", rec.prompt)
+      const dalleRes = await fetch(dalleEndpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "api-key": apiKey },
+        body: JSON.stringify({
+          prompt: rec.prompt,
+          n: 1,
+          size: "1024x1024",
+          quality: "standard",
+        }),
+      })
+
+      if (!dalleRes.ok) {
+        const errText = await dalleRes.text()
+        console.error("[petster] DALL-E error:", errText)
+        // Push placeholder on failure
+        imageResults.push({ url: "", description: rec.description })
+        continue
+      }
+
+      const dalleData = (await dalleRes.json()) as {
+        data: Array<{ url: string }>
+      }
+      imageResults.push({
+        url: dalleData.data[0]?.url ?? "",
+        description: rec.description,
+      })
+    } catch (err) {
+      console.error("[petster] DALL-E generation failed:", err)
+      imageResults.push({ url: "", description: rec.description })
+    }
+  }
+
+  return { images: imageResults }
+}
