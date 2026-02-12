@@ -24,6 +24,7 @@ function localDogImage(dogId: number): string {
 interface AIGeneratedImage {
   url: string
   description: string
+  breed: string
 }
 
 interface ResultsPageProps {
@@ -324,19 +325,19 @@ export function ResultsPage({
       {/* CTA */}
       <section className="text-center pt-4">
 
-      {/* 🎨 AI-Generated Recommended Dogs */}
+      {/* 🐾 AI-Recommended Breeds */}
       <section>
         <h3 className="text-2xl font-bold text-foreground mb-2 text-center">
-          🎨 AI-Generated Matches
+          🐾 AI-Recommended For You
         </h3>
         <p className="text-center text-muted-foreground mb-6">
-          Custom dog portraits created just for you based on your swipes
+          Breeds picked by AI based on your swipe history
         </p>
         {aiImagesLoading ? (
           <div className="flex flex-col items-center gap-4 py-8">
             <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
             <p className="text-muted-foreground animate-pulse">
-              🎨 AI is painting your perfect dogs...
+              ✨ AI is finding your perfect breeds...
             </p>
           </div>
         ) : aiImages.length > 0 ? (
@@ -351,21 +352,22 @@ export function ResultsPage({
                   {img.url ? (
                     <img
                       src={img.url}
-                      alt={img.description}
+                      alt={img.breed || img.description}
                       className="h-full w-full object-cover"
                     />
                   ) : (
                     <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-violet-100 to-pink-100">
-                      <span className="text-5xl">🎨</span>
+                      <span className="text-5xl">🐕</span>
                     </div>
                   )}
                   <div className="absolute top-3 right-3">
                     <span className="px-2 py-1 rounded-full text-xs font-medium bg-violet-100/90 text-violet-700 backdrop-blur-sm">
-                      ✨ AI Generated
+                      ✨ AI Pick
                     </span>
                   </div>
                 </div>
-                <div className="p-4">
+                <div className="p-4 space-y-1">
+                  <h4 className="text-lg font-bold text-foreground">{img.breed}</h4>
                   <p className="text-sm text-muted-foreground leading-relaxed">
                     {img.description}
                   </p>
@@ -375,7 +377,7 @@ export function ResultsPage({
           </div>
         ) : (
           <p className="text-center text-muted-foreground">
-            Could not generate AI images at this time.
+            Could not generate AI recommendations at this time.
           </p>
         )}
       </section>

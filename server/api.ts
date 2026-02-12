@@ -127,17 +127,84 @@ Return ONLY valid JSON with this exact structure (no markdown, no code fences):
 }
 
 /**
- * Given the user's swipe history, generate 3 DALL-E images of recommended dogs.
- * Uses Azure OpenAI gpt-4o-mini to craft prompts, then DALL-E 3 to render them.
+ * Map of breed names to dog.ceo API paths for fetching real photos.
+ */
+const BREED_API_MAP: Record<string, string> = {
+  "golden retriever": "retriever/golden",
+  "labrador retriever": "retriever/labrador",
+  labrador: "labrador",
+  "french bulldog": "bulldog/french",
+  "english bulldog": "bulldog/english",
+  "border collie": "collie/border",
+  "german shepherd": "germanshepherd",
+  "bernese mountain dog": "mountain/bernese",
+  "australian shepherd": "australian/shepherd",
+  "siberian husky": "husky",
+  husky: "husky",
+  poodle: "poodle/standard",
+  beagle: "beagle",
+  boxer: "boxer",
+  dachshund: "dachshund",
+  pomeranian: "pomeranian",
+  "shih tzu": "shihtzu",
+  "yorkshire terrier": "terrier/yorkshire",
+  chihuahua: "chihuahua",
+  "great dane": "dane/great",
+  doberman: "doberman",
+  rottweiler: "rottweiler",
+  corgi: "corgi/cardigan",
+  maltese: "maltese",
+  samoyed: "samoyed",
+  akita: "akita",
+  dalmatian: "dalmatian",
+  greyhound: "greyhound",
+  "pit bull": "pitbull",
+  "shiba inu": "shiba",
+  malamute: "malamute",
+  "cocker spaniel": "spaniel/cocker",
+  "irish setter": "setter/irish",
+  "basset hound": "hound/basset",
+  newfoundland: "newfoundland",
+  "saint bernard": "stbernard",
+  papillon: "papillon",
+  "chow chow": "chow",
+  mastiff: "mastiff/english",
+  whippet: "whippet",
+  vizsla: "vizsla",
+  weimaraner: "weimaraner",
+  havanese: "havanese",
+}
+
+async function fetchBreedPhoto(breed: string): Promise<string> {
+  const key = breed.toLowerCase().trim()
+  const mapped = BREED_API_MAP[key]
+  if (mapped) {
+    try {
+      const res = await fetch(`https://dog.ceo/api/breed/${mapped}/images/random`)
+      const data = (await res.json()) as { status: string; message: string }
+      if (data.status === "success") return data.message
+    } catch { /* fall through */ }
+  }
+  // Fallback to random dog image
+  try {
+    const res = await fetch("https://dog.ceo/api/breeds/image/random")
+    const data = (await res.json()) as { status: string; message: string }
+    if (data.status === "success") return data.message
+  } catch { /* ignore */ }
+  return ""
+}
+
+/**
+ * Given the user's swipe history, generate 3 recommended dog profiles via GPT
+ * and fetch real breed photos from dog.ceo.
  */
 export async function generateRecommendedImages(
   body: RequestBody,
   apiKey: string
-): Promise<{ images: Array<{ url: string; description: string }> }> {
+): Promise<{ images: Array<{ url: string; description: string; breed: string }> }> {
   const { preferences, results } = body
 
-  // Step 1: Use GPT to create 3 vivid DALL-E prompts based on swipe history
-  const promptRequest = `Based on this user's dog preferences and swiping behavior, generate exactly 3 creative image prompts for DALL-E to create photorealistic pictures of recommended dogs.
+  const promptRequest = `Based on this user's dog preferences and swiping behavior, recommend exactly 3 specific dog breeds they would love.
 
 User Preferences:
 - Energy level range: ${preferences.energy[0]}% – ${preferences.energy[1]}%
@@ -147,23 +214,23 @@ User Preferences:
 Dogs they LIKED: ${results.liked.map((d) => `${d.name} (${d.breed}, ${d.age}, ${d.weight})`).join(", ") || "None"}
 Dogs they DISLIKED: ${results.disliked.map((d) => `${d.name} (${d.breed}, ${d.age}, ${d.weight})`).join(", ") || "None"}
 
-For each image, provide:
-- "prompt": A detailed DALL-E prompt for a cute, photorealistic dog photo in a warm setting (park, living room, backyard). Include breed, approximate size, coloring, and mood. Keep it under 200 characters.
-- "description": A short 1-sentence description of the recommended dog (breed, age, why it matches).
+For each recommendation, provide:
+- "breed": The exact breed name (e.g. "Golden Retriever", "Beagle", "Siberian Husky")
+- "description": A fun 1-2 sentence description of why this breed is a great match for them, including suggested age and personality traits.
 
 Return ONLY valid JSON:
 {
   "recommendations": [
-    { "prompt": "string", "description": "string" },
-    { "prompt": "string", "description": "string" },
-    { "prompt": "string", "description": "string" }
+    { "breed": "string", "description": "string" },
+    { "breed": "string", "description": "string" },
+    { "breed": "string", "description": "string" }
   ]
 }`
 
   const gptEndpoint =
     "https://petster.openai.azure.com/openai/deployments/gpt-4o-mini/chat/completions?api-version=2024-08-01-preview"
 
-  console.log("[tingrrr] Generating DALL-E prompts via GPT...")
+  console.log("[tingrrr] Generating breed recommendations via GPT...")
   const gptRes = await fetch(gptEndpoint, {
     method: "POST",
     headers: { "Content-Type": "application/json", "api-key": apiKey },
@@ -179,57 +246,29 @@ Return ONLY valid JSON:
 
   if (!gptRes.ok) {
     const errText = await gptRes.text()
-    throw new Error(`GPT prompt generation failed: ${gptRes.status} ${errText}`)
+    throw new Error(`GPT breed recommendation failed: ${gptRes.status} ${errText}`)
   }
 
   const gptData = (await gptRes.json()) as {
     choices: Array<{ message: { content: string } }>
   }
   const recs = JSON.parse(gptData.choices[0].message.content) as {
-    recommendations: Array<{ prompt: string; description: string }>
+    recommendations: Array<{ breed: string; description: string }>
   }
 
-  console.log("[tingrrr] Generated prompts:", recs.recommendations.map((r) => r.prompt))
+  console.log("[tingrrr] Recommended breeds:", recs.recommendations.map((r) => r.breed))
 
-  // Step 2: Call DALL-E 3 for each prompt
-  const dalleEndpoint =
-    "https://petster.openai.azure.com/openai/deployments/dall-e-3/images/generations?api-version=2024-02-01"
-
-  const imageResults: Array<{ url: string; description: string }> = []
+  // Step 2: Fetch real breed photos from dog.ceo
+  const imageResults: Array<{ url: string; description: string; breed: string }> = []
 
   for (const rec of recs.recommendations) {
-    try {
-      console.log("[tingrrr] Generating DALL-E image:", rec.prompt)
-      const dalleRes = await fetch(dalleEndpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "api-key": apiKey },
-        body: JSON.stringify({
-          prompt: rec.prompt,
-          n: 1,
-          size: "1024x1024",
-          quality: "standard",
-        }),
-      })
-
-      if (!dalleRes.ok) {
-        const errText = await dalleRes.text()
-        console.error("[tingrrr] DALL-E error:", errText)
-        // Push placeholder on failure
-        imageResults.push({ url: "", description: rec.description })
-        continue
-      }
-
-      const dalleData = (await dalleRes.json()) as {
-        data: Array<{ url: string }>
-      }
-      imageResults.push({
-        url: dalleData.data[0]?.url ?? "",
-        description: rec.description,
-      })
-    } catch (err) {
-      console.error("[tingrrr] DALL-E generation failed:", err)
-      imageResults.push({ url: "", description: rec.description })
-    }
+    const url = await fetchBreedPhoto(rec.breed)
+    console.log("[tingrrr] Fetched photo for", rec.breed, ":", url ? "OK" : "fallback")
+    imageResults.push({
+      url,
+      description: rec.description,
+      breed: rec.breed,
+    })
   }
 
   return { images: imageResults }
