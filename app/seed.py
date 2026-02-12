@@ -186,8 +186,8 @@ MOCK_DOGS = [
         image_url="/dogs/dog-12.jpg",
     ),
     Dog(
-        name="Bear",
-        breed="Bernese Mountain Dog",
+        name="Moo",
+        breed="Cat",
         size=SizeEnum.extra_large,
         age_years=3,
         weight_lbs=100,
@@ -198,7 +198,7 @@ MOCK_DOGS = [
         is_rescue=False,
         good_with_cats=True,
         good_with_kids=True,
-        image_url="/dogs/dog-13.jpg",
+        image_url="/dogs/dog-14.jpg",
     ),
     Dog(
         name="Jimmy",
@@ -213,7 +213,7 @@ MOCK_DOGS = [
         is_rescue=True,
         good_with_cats=True,
         good_with_kids=True,
-        image_url="/dogs/dog-14.jpg",
+        image_url="/dogs/dog-13.jpg",
     )
 ]
 
